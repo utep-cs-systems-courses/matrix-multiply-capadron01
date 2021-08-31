@@ -1,0 +1,21 @@
+Program to multiply nxn matrices. It Generates two square matrices and stores
+them in the given files with the given dimension and values. The second matrix
+is just generated with a value+1 greater than the value given by the user. I used three for loops to be able to
+read the matrices(one vertically and the other horizontally) and store the value in a third matrix
+
+How to use:
+To use this program git clone this repository and cd towards the file containing
+this repository then run-
+
+python3 matrixUtils.py -s 1024 -v value -f matrix1 -f2 matrix2 -r result
+
+-s:
+  Size of matrix. Default is 1024
+-v:
+  Value to fill matrix. Default is 1
+-f:
+  File to save the first matrix. If not existing, program will generate one.
+-f2:
+  File to save the second matrix. If not existing, program will generate one.
+-r:
+  File to save the resulting matrix. If not existing, program will generate one.
