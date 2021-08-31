@@ -26,8 +26,8 @@ def printSubarray(matrix, size=10):
     the matrix
     """
 
-    for row in range(1, 10):
-        for col in range(1, 10):
+    for row in range(size):
+        for col in range(size):
             print(f'{matrix[row][col]} ' , end='')
         print('')
 
@@ -56,6 +56,18 @@ def readFromFile(fileName):
 
     return matrix
 
+def multiplyMatrix(matrix, matrix2):
+
+    """Multiplies given matrices"""
+    dimensions = len(matrix)
+    newMatrix = genMatrix(dimensions,0)
+    for rows in range(dimensions):
+        for col in range(dimensions):
+            for index in range(dimensions):
+                newMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
+    return newMatrix
+
+
 def main():
     """
     Used for running as a script
@@ -69,17 +81,31 @@ def main():
         help='The value with which to fill the array with')
     parser.add_argument('-f', '--filename',
         help='The name of the file to save the matrix in (optional)')
+    parser.add_argument('-f2', '--filename2',
+        help='The name of the second file to save the matrix in (optional)')
+    parser.add_argument('-r', '--result',
+        help='The name of the result file to save the matrix in (optional)')
 
     args = parser.parse_args()
 
     mat = genMatrix(args.size, args.value)
+    mat2  = genMatrix2(args.size, args.value+1)
 
     if args.filename is not None:
-        print(f'Writing matrix to {args.filename}')
+        print(f'Writing first matrix to {args.filename}')
         writeToFile(mat, args.filename)
+        print(f'Writing second matrix to {args.filename2}')
+        writeToFile(mat2, args.filename2)
+        newMatrix = multiplyMatrix(mat,mat2)
+        print(f'Writing result matrix to {args.result}')
+        writeToFile(newMatrix, args.result)
 
-        print(f'Testing file')
-        printSubarray(readFromFile(args.filename))
+        print(f'Testing file\n 1st matrix\n')
+        printSubarray(readFromFile(args.filename),args.size)
+        print(f'Second Matrix')
+        printSubarray(readFromFile(args.filename2),args.size)
+        print(f'Resulting matrix')
+        printSubarray(readFromFile(args.result),args.size)
     else:
         printSubarray(mat)
 
