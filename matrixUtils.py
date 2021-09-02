@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import numpy as np
+import time
 
 def genMatrix(size=1024, value=1):
     """
@@ -67,6 +68,24 @@ def multiplyMatrix(matrix, matrix2):
                 newMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
     return newMatrix
 
+def multiplyMatrixBLock(matrix, matrix2):
+
+    """Multiplies given matrices using block"""
+    tile_size = 16
+    dimensions = len(matrix)
+    newMatrix = genMatrix(dimensions,0)
+    for rows in range(dimensions,step=tile_size):
+        for col in range(dimensions,step=tile_size):
+            for index in range(dimensions):
+                j_end_val = col+tile_size
+                for j in range(col, j_end_val):
+                    k_end_val = rows + tile_size
+                    sum = newMatrix[index][j]
+                    for k in range(rows,k_end_val):
+                        sum=sum+matrix[index][k]*matrix2[k][j]
+                newMatrix[index][j] = sum
+    return newMatrix
+
 
 def main():
     """
@@ -81,29 +100,27 @@ def main():
         help='The value with which to fill the array with')
     parser.add_argument('-f', '--filename',
         help='The name of the file to save the matrix in (optional)')
-    parser.add_argument('-f2', '--filename2',
-        help='The name of the second file to save the matrix in (optional)')
     parser.add_argument('-r', '--result',
         help='The name of the result file to save the matrix in (optional)')
 
     args = parser.parse_args()
 
     mat = genMatrix(args.size, args.value)
-    mat2  = genMatrix2(args.size, args.value+1)
 
     if args.filename is not None:
         print(f'Writing first matrix to {args.filename}')
         writeToFile(mat, args.filename)
-        print(f'Writing second matrix to {args.filename2}')
-        writeToFile(mat2, args.filename2)
-        newMatrix = multiplyMatrix(mat,mat2)
+        t0 = time.clock()
+        newMatrix = multiplyMatrix(mat,mat)
+        print(t0)
+        newMatrix = multiplyMatrixBLock(mat,mat)
+        print(t0)
+
         print(f'Writing result matrix to {args.result}')
         writeToFile(newMatrix, args.result)
 
         print(f'Testing file\n 1st matrix\n')
         printSubarray(readFromFile(args.filename),args.size)
-        print(f'Second Matrix')
-        printSubarray(readFromFile(args.filename2),args.size)
         print(f'Resulting matrix')
         printSubarray(readFromFile(args.result),args.size)
     else:
