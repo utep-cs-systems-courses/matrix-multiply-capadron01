@@ -2,6 +2,8 @@
 import argparse
 import numpy as np
 import time
+import pymp
+
 
 def genMatrix(size=1024, value=1):
     """
@@ -31,6 +33,7 @@ def printSubarray(matrix, size=10):
         for col in range(size):
             print(f'{matrix[row][col]} ' , end='')
         print('')
+
 
 def writeToFile(matrix, fileName):
     """
@@ -68,22 +71,34 @@ def multiplyMatrix(matrix, matrix2):
                 newMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
     return newMatrix
 
+def multiplyMatrixParallel(matrix, matrix2):
+
+    """Multiplies given matrices in parallel"""
+    dimensions = len(matrix)
+    newMatrix = genMatrix(dimensions,0)
+    for rows in range(dimensions):
+        for col in range(dimensions):
+            with pymp as p:
+                for index in range(dimensions):
+                    newMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
+    return newMatrix
+
 def multiplyMatrixBLock(matrix, matrix2):
 
     """Multiplies given matrices using block"""
     tile_size = 16
     dimensions = len(matrix)
     newMatrix = genMatrix(dimensions,0)
-    for rows in range(dimensions,step=tile_size):
-        for col in range(dimensions,step=tile_size):
-            for index in range(dimensions):
-                j_end_val = col+tile_size
-                for j in range(col, j_end_val):
-                    k_end_val = rows + tile_size
-                    sum = newMatrix[index][j]
-                    for k in range(rows,k_end_val):
-                        sum=sum+matrix[index][k]*matrix2[k][j]
-                newMatrix[index][j] = sum
+    for kk in range(0,dimensions,tile_size):
+        for jj in range(0,dimensions,tile_size):
+            for i in range(dimensions):
+                j_end_val = jj+tile_size
+                for j in range(jj, j_end_val):
+                    k_end_val = kk + tile_size
+                    sum = newMatrix[i][j]
+                    for k in range(kk,k_end_val):
+                        sum=sum+matrix[i][k]*matrix2[k][j]
+                        newMatrix[i][j] = sum
     return newMatrix
 
 
@@ -110,19 +125,14 @@ def main():
     if args.filename is not None:
         print(f'Writing first matrix to {args.filename}')
         writeToFile(mat, args.filename)
-        t0 = time.clock()
-        newMatrix = multiplyMatrix(mat,mat)
-        print(t0)
-        newMatrix = multiplyMatrixBLock(mat,mat)
-        print(t0)
+        newMatrix = multiplyMatrixParallel(mat,mat)
 
         print(f'Writing result matrix to {args.result}')
         writeToFile(newMatrix, args.result)
-
         print(f'Testing file\n 1st matrix\n')
-        printSubarray(readFromFile(args.filename),args.size)
+        printSubarray(readFromFile(args.filename))
         print(f'Resulting matrix')
-        printSubarray(readFromFile(args.result),args.size)
+        printSubarray(readFromFile(args.result))
     else:
         printSubarray(mat)
 
