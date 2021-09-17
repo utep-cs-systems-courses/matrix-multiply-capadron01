@@ -76,13 +76,13 @@ def multiplyMatrixParallel(matrix, matrix2):
     """Multiplies given matrices in parallel"""
     dimensions = len(matrix)
     newMatrix = genMatrix(dimensions,0)
-    for rows in range(dimensions):
-        for col in range(dimensions):
-            with pymp as p:
+    sharedMatrix = pymp.shared.array((dimensions,dimensions),dtype='uint16')
+    with pymp.Parallel(4) as p:
+        for rows in range(dimensions):
+            for col in p.range(dimensions):
                 for index in range(dimensions):
-                    newMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
-    return newMatrix
-
+                    sharedMatrix[rows][col] += matrix[rows][index]*matrix2[index][rows]
+    return sharedMatrix
 def multiplyMatrixBLock(matrix, matrix2):
 
     """Multiplies given matrices using block"""
@@ -125,7 +125,11 @@ def main():
     if args.filename is not None:
         print(f'Writing first matrix to {args.filename}')
         writeToFile(mat, args.filename)
+
+        start = time.clock_gettime(time.CLOCK_MONOTONIC_RAW)
         newMatrix = multiplyMatrixParallel(mat,mat)
+        end = time.clock_gettime(time.CLOCK_MONOTONIC_RAW)
+
 
         print(f'Writing result matrix to {args.result}')
         writeToFile(newMatrix, args.result)
@@ -133,6 +137,7 @@ def main():
         printSubarray(readFromFile(args.filename))
         print(f'Resulting matrix')
         printSubarray(readFromFile(args.result))
+        print(f'Totsl time: {end-start}')
     else:
         printSubarray(mat)
 
