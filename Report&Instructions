@@ -1,7 +1,18 @@
 Program to multiply nxn matrices. It Generates two square matrices and stores
 them in the given files with the given dimension and values. The second matrix
 is just generated with a value+1 greater than the value given by the user. I used three for loops to be able to
-read the matrices(one vertically and the other horizontally) and store the value in a third matrix
+read the matrices(one vertically and the other horizontally) and store the value in a third matrix. Another algorithm
+that was used was by using a fourth for loop and applying a block. A third algorithm was used by making the original
+algorithm with the three for loops and parallelizing it.
+This happened with 1 thread
+
+This happened with 2 threads
+
+This happened with 4 threads
+
+This happened with 8 threads
+
+The more threads the system uses the faster it ran, although when using more threads it would slightly faster. The syste only has limit of processors so no matter how many threads are placed it wouldn’t affect the speed on which the tasks are done.
 
 How to use:
 To use this program git clone this repository and cd towards the file containing
